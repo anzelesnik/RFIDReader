@@ -1,0 +1,87 @@
+[Version]
+Signature="$WINDOWS NT$"
+Class=Keyboard
+ClassGuid={4d36e96b-e325-11ce-bfc1-08002be10318}
+Provider=%ManufacturerName%
+CatalogFile=RFIDReaderDriver.cat
+
+[DestinationDirs]
+DefaultDestDir = 12
+RFID_Reader_Device_CoInstaller_CopyFiles = 11
+
+; ================= Class section =====================
+
+[SourceDisksNames]
+1 = %DiskName%,,,""
+
+[SourceDisksFiles]
+RFIDReaderDriver.sys  = 1,,
+WdfCoInstaller$KMDFCOINSTALLERVERSION$.dll=1 ; make sure the number matches with SourceDisksNames
+
+;*****************************************
+; Install Section
+;*****************************************
+
+[Manufacturer]
+%ManufacturerName%=Standard,NT$ARCH$
+
+[Standard.NT$ARCH$]
+%RFIDReaderDriver.DeviceDesc%=RFID_Reader_Device, HID\VID_FFFF&PID_0035&REV_0100&MI_00 ; Target device hardware ID
+
+[RFID_Reader_Device.NT]
+CopyFiles=Drivers_Dir
+Include=keyboard.inf
+Needs=HID_Inst
+
+[Drivers_Dir]
+RFIDReaderDriver.sys
+
+;-------------- Service installation
+[RFID_Reader_Device.NT.Services]
+AddService = RFIDReaderDriver,, RFIDReaderDriver_Service_Inst
+Include=keyboard.inf
+Needs=HID_Inst.Services
+
+; -------------- RFIDReaderDriver driver install sections
+[RFIDReaderDriver_Service_Inst]
+DisplayName    = %RFIDReaderDriver.SVCDESC%
+ServiceType    = 1               ; SERVICE_KERNEL_DRIVER
+StartType      = 3               ; SERVICE_DEMAND_START
+ErrorControl   = 0               ; SERVICE_ERROR_NORMAL
+ServiceBinary  = %12%\RFIDReaderDriver.sys
+
+[RFID_Reader_Device.NT.HW]
+AddReg = RFID_Reader_Device.HW.AddReg
+
+Include=keyboard.inf
+Needs=HID_Inst.HW
+
+[RFID_Reader_Device.HW.AddReg]
+HKR,,"UpperFilters",0x00010000,"RFIDReaderDriver"
+
+;
+;--- RFID_Reader_Device Coinstaller installation ------
+;
+
+[RFID_Reader_Device.NT.CoInstallers]
+AddReg=RFID_Reader_Device_CoInstaller_AddReg
+CopyFiles=RFID_Reader_Device_CoInstaller_CopyFiles
+
+[RFID_Reader_Device_CoInstaller_AddReg]
+HKR,,CoInstallers32,0x00010000, "WdfCoInstaller$KMDFCOINSTALLERVERSION$.dll,WdfCoInstaller"
+
+[RFID_Reader_Device_CoInstaller_CopyFiles]
+WdfCoInstaller$KMDFCOINSTALLERVERSION$.dll
+
+[RFID_Reader_Device.NT.Wdf]
+KmdfService =  RFIDReaderDriver, RFIDReaderDriver_wdfsect
+[RFIDReaderDriver_wdfsect]
+KmdfLibraryVersion = $KMDFVERSION$
+
+[Strings]
+SPSVCINST_ASSOCSERVICE= 0x00000002
+ManufacturerName="RFID"
+ClassName="Keyboard"
+DiskName = "RFID Reader Driver Installation Disk"
+RFIDReaderDriver.DeviceDesc = "RFID Reader Device"
+RFIDReaderDriver.SVCDESC = "RFID Reader Driver"
