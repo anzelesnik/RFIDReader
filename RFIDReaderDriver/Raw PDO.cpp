@@ -15,12 +15,15 @@ void rawPdoDeviceControl(WDFQUEUE queue, WDFREQUEST request, std::size_t outputB
 	std::size_t inputBufferLength, std::uint32_t ioControlCode) {
 	const auto device = WdfIoQueueGetDevice(queue);
 
+	// If a correct control code is passed in, requeue the request into the keyboard request queue
 	if (ioControlCode == Configuration::IoctlRequestReaderData) {
 		if (Configuration::debugPrint)
 			DbgPrintEx(0, 0, "[RFID Reader] IoctlRequestReaderData received\n");
-		
+
+		WDF_REQUEST_FORWARD_OPTIONS forwardOptions {};
+		WDF_REQUEST_FORWARD_OPTIONS_INIT(&forwardOptions);
 		const auto keyboardQueue = FilterGetRawPdoDeviceExt(device)->keyboardRequestQueue;
-		WdfRequestForwardToIoQueue(request, keyboardQueue);
+		WdfRequestForwardToParentDeviceIoQueue(request, keyboardQueue, &forwardOptions);
 		
 		return;
 	}

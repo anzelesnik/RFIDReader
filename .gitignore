@@ -1,4 +1,7 @@
 
 RFIDReaderDriver/*/
-
 x64/
+.vs/
+
+RFIDReaderUsermodeTest/bin
+RFIDReaderUsermodeTest/obj

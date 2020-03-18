@@ -1,0 +1,16 @@
+﻿<Window x:Class="RFIDReaderUsermodeTest.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:RFIDReaderUsermodeTest"
+        mc:Ignorable="d"
+        Title="RFID Reader Test" Height="150" Width="300" MinHeight="150" MinWidth="200">
+    <StackPanel VerticalAlignment="Center">
+        <Grid HorizontalAlignment="Center" Margin="0, 0, 0, 0">
+            <Label Content="ID card:" HorizontalAlignment="Left" Margin="0, 0, 0, 0" Width="50"/>
+            <Label x:Name="idValue" Content="Unknown" HorizontalAlignment="Right" Margin="50, 0, 0, 0" Height="26"/>
+        </Grid>
+        <Button x:Name="requestBtn" Content="Request" HorizontalAlignment="Stretch" Margin="0, 20, 0, 0" Width="75" Click="RequestBtn_OnClick"/>
+    </StackPanel>
+</Window>
