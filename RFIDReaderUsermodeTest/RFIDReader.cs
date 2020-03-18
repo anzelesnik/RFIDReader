@@ -67,7 +67,7 @@ namespace RFIDReaderUsermodeTest
             IntPtr DeviceInterfaceData
         );
 
-        [DllImport(@"setupapi.dll", SetLastError = true, CharSet = CharSet.Ansi)]
+        [DllImport("setupapi.dll", SetLastError = true, CharSet = CharSet.Ansi)]
         private static extern bool SetupDiGetDeviceInterfaceDetail(
             SafeFileHandle DevInfoSet,
             IntPtr DeviceInterfaceData,
@@ -81,14 +81,17 @@ namespace RFIDReaderUsermodeTest
         public static extern bool SetupDiDestroyDeviceInfoList(IntPtr DeviceInfoSet);
 
         private const uint FILE_ATTRIBUTE_NORMAL = 0x80;
-        private const uint FILE_SHARE_READ = 0x1;
-        private const uint FILE_SHARE_WRITE = 0x2;
-        private const uint GENERIC_READ = 0x80000000;
-        private const uint GENERIC_WRITE = 0x40000000;
-        private const uint OPEN_EXISTING = 0x3;
+        private const uint FILE_SHARE_READ       = 0x1;
+        private const uint FILE_SHARE_WRITE      = 0x2;
+        private const uint GENERIC_READ          = 0x80000000;
+        private const uint GENERIC_WRITE         = 0x40000000;
+        private const uint OPEN_EXISTING         = 0x3;
 
-        private const uint DIGCF_PRESENT = 0x2;
+        private const uint DIGCF_PRESENT         = 0x2;
         private const uint DIGCF_DEVICEINTERFACE = 0x10;
+
+        private const uint MAPVK_VSC_TO_VK  = 0x1;
+        private const uint MAPVK_VK_TO_CHAR = 0x2;
 
         // This GUID must match the one that the driver uses
         private static Guid filterDeviceInterface = new Guid(
@@ -177,9 +180,9 @@ namespace RFIDReaderUsermodeTest
             for (var i = 0; i < bytesReturned; ++i)
             {
                 // Translate the scan code into a virtual key code
-                buffer[i] = (byte)MapVirtualKey(buffer[i], 1);
+                buffer[i] = (byte)MapVirtualKey(buffer[i], MAPVK_VSC_TO_VK);
                 // Generally not needed as characters from A-Z and 0-9 always correspond to their virtual key codes
-                buffer[i] = (byte)MapVirtualKey(buffer[i], 2);
+                buffer[i] = (byte)MapVirtualKey(buffer[i], MAPVK_VK_TO_CHAR);
             }
 
             return System.Text.Encoding.ASCII.GetString(buffer);

@@ -28,7 +28,7 @@ void rawPdoDeviceControl(WDFQUEUE queue, WDFREQUEST request, std::size_t outputB
 		return;
 	}
 
-	WdfRequestComplete(request, STATUS_SUCCESS);
+	WdfRequestComplete(request, STATUS_NOT_IMPLEMENTED);
 }
 
 NTSTATUS initializeDeviceRawPdo(WDFDEVICE device, ULONG deviceIndex) {
