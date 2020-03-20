@@ -23,7 +23,9 @@ void rawPdoDeviceControl(WDFQUEUE queue, WDFREQUEST request, std::size_t outputB
 		WDF_REQUEST_FORWARD_OPTIONS forwardOptions {};
 		WDF_REQUEST_FORWARD_OPTIONS_INIT(&forwardOptions);
 		const auto keyboardQueue = FilterGetRawPdoDeviceExt(device)->keyboardRequestQueue;
-		WdfRequestForwardToParentDeviceIoQueue(request, keyboardQueue, &forwardOptions);
+		const auto status = WdfRequestForwardToParentDeviceIoQueue(request, keyboardQueue, &forwardOptions);
+		if (!NT_SUCCESS(status))
+			WdfRequestComplete(request, status);
 		
 		return;
 	}
@@ -44,11 +46,16 @@ NTSTATUS initializeDeviceRawPdo(WDFDEVICE device, ULONG deviceIndex) {
 
 	// This lambda cleans up and returns if an error was encountered
 	const auto exitError = [&](NTSTATUS status) {
+		RtlFreeUnicodeString(&deviceId);
+		
 		if (deviceInit)
 			WdfDeviceInitFree(deviceInit);
 
 		if (pdoDevice)
 			WdfObjectDelete(pdoDevice);
+
+		if (queue)
+			WdfObjectDelete(queue);
 
 		return status;
 	};

@@ -39,7 +39,7 @@ void keyboardClassServiceCallback(PDEVICE_OBJECT deviceObject, PKEYBOARD_INPUT_D
 		// Retrieve the request output buffer supplied by the user mode application
 		void* requestBuffer{};
 		std::size_t requestBufferSize{};
-		status = WdfRequestRetrieveOutputBuffer(request, sizeof(ReaderData), &requestBuffer, &requestBufferSize);
+		status = WdfRequestRetrieveOutputBuffer(request, 1, &requestBuffer, &requestBufferSize);
 		if (!NT_SUCCESS(status)) {
 			if (Configuration::debugPrint)
 				DbgPrintEx(0, 0, "[RFID Reader] %s: Failed to retrieve the request output buffer: 0x%X\n", __FUNCTION__, status);
@@ -49,19 +49,9 @@ void keyboardClassServiceCallback(PDEVICE_OBJECT deviceObject, PKEYBOARD_INPUT_D
 			continue;
 		}
 
-		if (!requestBufferSize) {
-			if (Configuration::debugPrint)
-				DbgPrintEx(0, 0, "[RFID Reader] %s: User did not provide a buffer", __FUNCTION__);
-
-			WdfRequestComplete(request, STATUS_INVALID_PARAMETER);
-
-			continue;
-		}
-
 		// Check if user supplied a big enough buffer, otherwise truncate the data
 		const auto bufferCopySize = readerBufferIndex > requestBufferSize ? requestBufferSize : readerBufferIndex;
 
-		// TODO Figure out what happens in the case that the input buffer size is bigger than he actual amount of available memory
 		// Copy the reader buffer to the request output buffer and set the length that was copied
 		memcpy(requestBuffer, readerBuffer, bufferCopySize);
 		WdfRequestSetInformation(request, bufferCopySize);
@@ -78,6 +68,7 @@ void keyboardClassServiceCallback(PDEVICE_OBJECT deviceObject, PKEYBOARD_INPUT_D
 }
 
 NTSTATUS evtDeviceAdd(WDFDRIVER driver, PWDFDEVICE_INIT deviceInit) {
+	// If this function returns an error, the devices and their children are automatically deleted
 	WDFDEVICE device {};
 
 	// Initialize the primary filter device and its IO queues
@@ -117,5 +108,5 @@ extern "C" NTSTATUS DriverEntry(PDRIVER_OBJECT driverObject, PUNICODE_STRING reg
 	if (Configuration::debugPrint)
 		DbgPrintEx(0, 0, "[RFID Reader] Driver loaded\n");
 
-	return STATUS_SUCCESS;
+	return status;
 }

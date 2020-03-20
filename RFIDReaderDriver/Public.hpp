@@ -25,7 +25,3 @@ struct RawPdoDeviceExtension {
 
 WDF_DECLARE_CONTEXT_TYPE_WITH_NAME(DeviceExtension, FilterGetDeviceExt)
 WDF_DECLARE_CONTEXT_TYPE_WITH_NAME(RawPdoDeviceExtension, FilterGetRawPdoDeviceExt)
-
-struct ReaderData {
-	char buffer;
-};

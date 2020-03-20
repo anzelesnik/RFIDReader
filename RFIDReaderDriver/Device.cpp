@@ -83,10 +83,13 @@ NTSTATUS initializeDevice(WDFDEVICE& device, PWDFDEVICE_INIT deviceInit) {
 	WDF_IO_QUEUE_CONFIG_INIT_DEFAULT_QUEUE(&ioQueueConfig, WdfIoQueueDispatchParallel);
 	ioQueueConfig.EvtIoInternalDeviceControl = reinterpret_cast<decltype(ioQueueConfig.EvtIoInternalDeviceControl)>(internalDeviceControl);
 	status = WdfIoQueueCreate(device, &ioQueueConfig, WDF_NO_OBJECT_ATTRIBUTES, WDF_NO_HANDLE);
-	if (!NT_SUCCESS(status))
+	if (!NT_SUCCESS(status)) {
 		if (Configuration::debugPrint)
 			DbgPrintEx(0, 0, "[RFID Reader] %s: Failed to set an internal device control routine for a device: 0x%X\n",
 				__FUNCTION__, status);
+		
+		return status;
+	}
 
 	// Create a queue for the keyboard request
 	const auto queue = &FilterGetDeviceExt(device)->keyboardRequestQueue;
